@@ -1,6 +1,7 @@
 package main
 
 import (
+	"hub/trace"
 	"log"
 	"net/http"
 
@@ -14,6 +15,7 @@ type room struct {
 	join    chan *client
 	leave   chan *client
 	clients map[*client]bool // All current clients in the room
+	tracer  trace.Tracer     // Trace room activity
 }
 
 // Returns a new room.
@@ -23,6 +25,7 @@ func newRoom() *room {
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
+		tracer:  trace.Off(),
 	}
 }
 
@@ -31,17 +34,18 @@ func (r *room) run() {
 		select {
 		case client := <-r.join:
 			// joining
-			log.Println("[+] Client joined room")
 			r.clients[client] = true
+			r.tracer.Trace("[+] Client joined room")
 		case client := <-r.leave:
 			// leaving
-			log.Println("[-] Client left room")
 			delete(r.clients, client)
 			close(client.send)
+			r.tracer.Trace("[-] Client left room")
 		case msg := <-r.forward:
 			// forward message to all clients
 			for client := range r.clients {
 				client.send <- msg
+				r.tracer.Trace("[M] sent to client")
 			}
 		}
 	}
