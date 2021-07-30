@@ -19,6 +19,7 @@ type room struct {
 }
 
 // Returns a new room.
+// The default tracer is turned Off.
 func newRoom() *room {
 	return &room{
 		forward: make(chan []byte),
@@ -29,6 +30,7 @@ func newRoom() *room {
 	}
 }
 
+// Main room loop.
 func (r *room) run() {
 	for {
 		select {
