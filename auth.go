@@ -40,7 +40,7 @@ func MustAuth(handler http.Handler) http.Handler {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	segs := strings.Split(r.URL.Path, "/")
 	if len(segs) < 4 {
-		w.Write([]byte("Provider not found"))
+		http.Error(w, "Error when trying to auth", http.StatusBadRequest)
 		return
 	}
 
@@ -49,13 +49,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 	case "login":
-		provider, err := gomniauth.Provider(provider)
+		providerO, err := gomniauth.Provider(provider)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error when trying to get provider "+
 				"%s: %s", provider, err), http.StatusBadRequest)
 			return
 		}
-		loginUrl, err := provider.GetBeginAuthURL(nil, nil)
+		loginUrl, err := providerO.GetBeginAuthURL(nil, nil)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error when trying to GetBeginAuthURL "+
 				"for %s: %s", provider, err), http.StatusInternalServerError)
