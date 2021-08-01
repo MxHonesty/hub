@@ -45,7 +45,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
 	clientId := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
 	securityKey := os.Getenv("SECURITY_KEY")
