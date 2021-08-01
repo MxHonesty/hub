@@ -18,17 +18,19 @@ type room struct {
 	leave   chan *client
 	clients map[*client]bool // All current clients in the room
 	tracer  trace.Tracer     // Trace room activity
+	avatar  Avatar
 }
 
 // Returns a new room.
 // The default tracer is turned Off.
-func newRoom() *room {
+func newRoom(avatar Avatar) *room {
 	return &room{
 		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  trace.Off(),
+		avatar:  avatar,
 	}
 }
 

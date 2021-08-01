@@ -37,6 +37,18 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.templ.Execute(w, data)
 }
 
+// Handles the logout.
+func logOutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   "auth",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	})
+	w.Header().Set("Location", "/chat")
+	w.WriteHeader(http.StatusTemporaryRedirect)
+}
+
 func main() {
 	var addr = flag.String("addr", ":3000", "The addr of the application.")
 	flag.Parse()
@@ -53,13 +65,14 @@ func main() {
 	gomniauth.WithProviders(google.New(clientId, clientSecret,
 		"http://localhost:3000/auth/callback/google"))
 
-	r := newRoom()
+	r := newRoom(UseGravatar)
 	r.tracer = trace.New(os.Stdout)
 
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
+	http.HandleFunc("/logout", logOutHandler)
 	go r.run()
 
 	log.Println("Starting server on", *addr)
