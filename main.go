@@ -16,6 +16,12 @@ import (
 	"github.com/stretchr/objx"
 )
 
+// Set active Avatar implementation
+var avatars Avatar = TryAvatars{
+	UseAuthAvatar,
+	UseGravatar,
+}
+
 // Represents a single template
 type templateHandler struct {
 	once     sync.Once
@@ -65,7 +71,7 @@ func main() {
 	gomniauth.WithProviders(google.New(clientId, clientSecret,
 		"http://localhost:3000/auth/callback/google"))
 
-	r := newRoom(UseGravatar)
+	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))

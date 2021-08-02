@@ -30,7 +30,9 @@ func (c *client) read() {
 		}
 		msg.When = time.Now()
 		msg.Name = c.userData["name"].(string)
-		msg.AvatarURL, err = c.room.avatar.GetAvatarURL(c)
+		if avatarURL, ok := c.userData["avatar_url"]; ok {
+			msg.AvatarURL = avatarURL.(string)
+		}
 		if err != nil {
 			c.room.tracer.Trace("Avatar URL error: " + err.Error())
 		}
